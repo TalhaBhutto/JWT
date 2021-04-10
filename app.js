@@ -8,8 +8,11 @@ var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
 //import crypto to encrypt the password
 var crypto = require('crypto');
-var key = "password";
-var algo = "aes256";
+var key = "password"; //key for encryption
+var algo = "aes256"; //algorithm type
+//import jwt for token generation
+const jwt=require('jsonwebtoken');
+const jwtKey="jwt";
 //import mongoose for connecting to mongo db
 const mongo = require('mongoose');
 mongo.connect('mongodb+srv://Talha:lYDxLcpsmAs2gC0Y@cluster0.gmnqm.mongodb.net/LearningMongo?retryWrites=true&w=majority'
@@ -38,7 +41,10 @@ app.post('/register', jsonParser, (req, res) => {
     });
     data.save()
         .then((result) => {
-            res.status(201).json(result)
+            jwt.sign({result},jwtKey,{expiresIn:'300'},(err,token)=>{
+                res.status(201).json({token})
+            })
+            //res.status(201).json(result)
         })
         .catch((err) => {
             console.warn(err)
