@@ -51,7 +51,7 @@ app.post('/register', jsonParser, (req, res) => {
         })
 })
 app.post('/login',jsonParser,(req,res)=>{
-    Login.findOne({email:req.body.email}).then((data)=>{console})
+    Login.findOne({email:req.body.email}).then((data)=>{console.warn(data)})
 
 })
 app.listen(420);
