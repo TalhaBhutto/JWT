@@ -50,5 +50,7 @@ app.post('/register', jsonParser, (req, res) => {
             console.warn(err)
         })
 })
+app.post('/login',jsonParser,(req,res)=>{
 
+})
 app.listen(420);
