@@ -11,8 +11,8 @@ var crypto = require('crypto');
 var key = "password"; //key for encryption
 var algo = "aes256"; //algorithm type
 //import jwt for token generation
-const jwt=require('jsonwebtoken');
-const jwtKey="jwt";
+const jwt = require('jsonwebtoken');
+const jwtKey = "jwt";
 //import mongoose for connecting to mongo db
 const mongo = require('mongoose');
 mongo.connect('mongodb+srv://Talha:lYDxLcpsmAs2gC0Y@cluster0.gmnqm.mongodb.net/LearningMongo?retryWrites=true&w=majority'
@@ -41,8 +41,8 @@ app.post('/register', jsonParser, (req, res) => {
     });
     data.save()
         .then((result) => {
-            jwt.sign({result},jwtKey,{expiresIn:'300'},(err,token)=>{
-                res.status(201).json({token})
+            jwt.sign({ result }, jwtKey, { expiresIn: '300' }, (err, token) => {
+                res.status(201).json({ token })
             })
             //res.status(201).json(result)
         })
@@ -50,10 +50,39 @@ app.post('/register', jsonParser, (req, res) => {
             console.warn(err)
         })
 })
-app.post('/login',jsonParser,(req,res)=>{
-    Login.findOne({email:req.body.email})
-    .then((data)=>{
-        res.status(200).json(data)
+app.post('/login', jsonParser, (req, res) => {
+    Login.findOne({ email: req.body.email })
+        .then((data) => {
+            var decipher = crypto.createDecipher(algo, key);
+            var decPass = decipher.update(data.password, 'hex', 'utf8')
+                + decipher.final('utf8')
+            if (decPass == req.body.password) {
+                jwt.sign({ data }, jwtKey, { expiresIn: '300s' }, (err, token) => {
+                    res.status(200).json({ token });
+                })
+            }
+            console.warn(decPass);
+            //res.status(200).json(data);
+        })
+})
+app.get('/users', verifyToken, (req, res) => {
+    Login.find().then((result) => {
+        res.status(200).json(result)
     })
 })
+function verifyToken(req, res, next) {
+    const bearerHeader = req.headers['authorization'];
+
+    if (typeof bearerHeader !== 'undefined') {
+        const bearer = bearerHeader.split(' ')
+        console.warn(bearer[1])
+        req.token = bearer[1];
+        jwt.verify(req.token, jwtKey, (err, authData) => {
+            err ? res.json({ result: err }) : next()
+        })
+    }
+    else {
+        res.send({ "result": "Token not provided" })
+    }
+}
 app.listen(420);
