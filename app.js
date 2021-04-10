@@ -51,7 +51,7 @@ app.post('/register', jsonParser, (req, res) => {
         })
 })
 app.post('/login',jsonParser,(req,res)=>{
-    Login.
+    Login.f
 
 })
 app.listen(420);
